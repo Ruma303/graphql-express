@@ -17,8 +17,8 @@ app.all(
     "/graphql",
     createHandler({
         schema: schema,
-        rootValue: root,
-        graphiql: true,
+        //rootValue: root,
+        //graphiql: true,
     })
 );
 // Servire l'IDE di GraphQL

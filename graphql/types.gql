@@ -1,0 +1,92 @@
+    #% Tipi
+
+    ## Tipi scalari
+    scalar Date
+    scalar Time
+    scalar DateTime
+    scalar Timestamp
+    scalar Int
+    scalar Float
+    scalar String
+    scalar Boolean
+    scalar ID
+
+
+    ## Tipi oggetto
+    type User {
+    id: ID!
+    name: String!
+    email: String!
+    age: Int
+    direction: Direction
+    }
+
+    ## Tipi Enum
+    enum Direction {
+    NORTH
+    SOUTH
+    EAST
+    WEST
+    }
+
+    ## Tipi Query
+    type Query {
+    users: [User]
+    user(id: ID!): User
+    }
+
+    ## Tipi Mutation
+    type Mutation {
+    createUser(
+        name: String!
+        email: String!
+        age: Int
+        direction: Direction
+    ): User
+    updateUser(
+        id: ID!
+        name: String
+        email: String
+        age: Int
+        direction: Direction
+    ): User
+    deleteUser(id: ID!): User
+    }
+
+    ## Tipi Interfacce
+    interface Character {
+    id: ID
+    name: String
+    }
+    type Human implements Character {
+    id: ID
+    name: String
+    height: Float
+    }
+    type Droid implements Character {
+    id: ID
+    name: String
+    primaryFunction: String
+    }
+
+    ## Tipi Union
+    union SearchResult = Book | Author | Magazine
+    type Book {
+    title: String
+    author: Author
+    }
+    type Author {
+    name: String
+    books: [Book]
+    }
+    type Magazine {
+    title: String
+    issueNumber: Int
+    }
+
+    ## Tipi Subscription
+    type Subscription {
+    newUser: User
+    updatedUser: User
+    deletedUser: User
+    }
