@@ -2,9 +2,11 @@ var express = require("express");
 var { createHandler } = require("graphql-http/lib/use/express");
 var { ruruHTML } = require("ruru/server");
 const schema = require("./graphql/schema");
-const app = express();
-app.use(express.json());
 const PORT = 5000;
+const app = express();
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 // La root fornisce una funzione di risoluzione per ciascun endpoint API
 var root = {

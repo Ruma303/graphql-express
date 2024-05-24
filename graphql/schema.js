@@ -11,7 +11,24 @@ const {
 } = require("graphql");
 
 
-//% Types
+//% GraphQL Schema
+/* const { buildSchema } = require("graphql");
+const UserType = buildSchema(`
+    type User {
+        id: ID
+        name: String
+        email: String
+        phone: String
+    }
+
+    type Query {
+        users: [User]
+        user(id: ID): User
+    }
+`); */
+
+
+//% Object Types
 const UserType = new GraphQLObjectType({
     name: 'User',
     fields: () => ({
@@ -30,9 +47,14 @@ const PostType = new GraphQLObjectType({
         userId: { type: GraphQLID },
         title: { type: GraphQLString },
         description: { type: GraphQLString },
-        user: { // Relazione con UserType
+        user: { //* Relazione con UserType
             type: UserType,
-            //resolve: (parent, args) => User.findById(parent.userId)
+            resolve: (parent, args) => {
+                console.log("Parent:", parent);
+                const user = users.find(user => user.id.toString() == parent.userId);
+                console.log("Matching user:", user);
+                return user;
+            }
         }
     })
 });
@@ -49,7 +71,7 @@ const RootQuery = new GraphQLObjectType({
         user: {
             type: UserType,
             args: { id: { type: GraphQLID } },
-            resolve: (parent, args) => User.findById(args.id)
+            resolve: (parent, args) => users.find(user => user.id.toString() == args.id)
         },
         posts: {
             type: new GraphQLList(PostType),
@@ -58,115 +80,116 @@ const RootQuery = new GraphQLObjectType({
         post: {
             type: PostType,
             args: { id: { type: GraphQLID } },
-            resolve: (parent, args) => Post.findById(args.id)
-        },
-    }
-});
-
-
-//% Mutations
-const RootMutation = new GraphQLObjectType({
-    name: 'RootMutation',
-    fields: {
-        addUser: {
-            type: UserType,
-            args: {
-                id: { type: GraphQLID },
-                name: { type: GraphQLString },
-                email: { type: GraphQLString },
-                phone: { type: GraphQLString }
-            },
-            resolve: async (parent, args) => {
-                const user = await User.create({
-                    name: args.name,
-                    email: args.email,
-                    phone: args.phone
-                });
-                return user;
-            }
-        },
-        updateUser: {
-            type: UserType,
-            args: {
-                id: { type: GraphQLID },
-                name: { type: GraphQLString },
-                email: { type: GraphQLString },
-                phone: { type: GraphQLString }
-            },
-            resolve: async (parent, args) => {
-                const user = await User.findByIdAndUpdate(args.id, args, { new: true });
-                return user;
-            }
-        },
-        deleteUser: {
-            type: UserType,
-            args: {
-                id: { type: GraphQLID }
-            },
-            resolve: async (parent, args) => {
-                const user = await User.findByIdAndDelete(args.id);
-                return user;
-            }
-        },
-        addPost: {
-            type: PostType,
-            args: {
-                id: { type: GraphQLID },
-                userId: { type: GraphQLID },
-                name: { type: GraphQLString },
-                description: { type: GraphQLString },
-                status: {
-                    type: new GraphQLEnumType({
-                        name: 'PostStatus',
-                        values: {
-                            PENDING: { value: 'pending' },
-                            COMPLETED: { value: 'completed' },
-                            CANCELLED: { value: 'cancelled' }
-                        }
-                    }),
-                    defaultValue: 'pending'
-                },
-                userId: { type: GraphQLID }
-            },
-            resolve: async (parent, args) => {
-                const post = await Post.create({
-                    userId: args.userId,
-                    name: args.name,
-                    description: args.description,
-                    status: args.status
-                });
-                return post;
-            }
-        },
-        updatePost: {
-            type: PostType,
-            args: {
-                id: { type: GraphQLID },
-                userId: { type: GraphQLID },
-                name: { type: GraphQLString },
-                description: { type: GraphQLString },
-                status: { type: GraphQLString }
-            },
-            resolve: async (parent, args) => {
-                const post = await Post.findByIdAndUpdate(args.id, args, { new: true });
-                return post;
-            }
-        },
-        deletePost: {
-            type: PostType,
-            args: {
-                id: { type: GraphQLID }
-            },
-            resolve: async (parent, args) => {
-                const post = await Post.findByIdAndDelete(args.id);
-                return post;
-            }
+            resolve: (parent, args) => posts.find(post => post.id.toString() === args.id)
         }
     }
 });
 
 
-module.exports = new GraphQLSchema({
-    query: RootQuery,
-    mutation: RootMutation
-});
+    //! modifica i resolvers per utilizzare JavaScript
+    //% Mutations
+    const RootMutation = new GraphQLObjectType({
+        name: 'RootMutation',
+        fields: {
+            addUser: {
+                type: UserType,
+                args: {
+                    id: { type: GraphQLID },
+                    name: { type: GraphQLString },
+                    email: { type: GraphQLString },
+                    phone: { type: GraphQLString }
+                },
+                resolve: async (parent, args) => {
+                    const user = await User.create({
+                        name: args.name,
+                        email: args.email,
+                        phone: args.phone
+                    });
+                    return user;
+                }
+            },
+            updateUser: {
+                type: UserType,
+                args: {
+                    id: { type: GraphQLID },
+                    name: { type: GraphQLString },
+                    email: { type: GraphQLString },
+                    phone: { type: GraphQLString }
+                },
+                resolve: async (parent, args) => {
+                    const user = await User.findByIdAndUpdate(args.id, args, { new: true });
+                    return user;
+                }
+            },
+            deleteUser: {
+                type: UserType,
+                args: {
+                    id: { type: GraphQLID }
+                },
+                resolve: async (parent, args) => {
+                    const user = await User.findByIdAndDelete(args.id);
+                    return user;
+                }
+            },
+            addPost: {
+                type: PostType,
+                args: {
+                    id: { type: GraphQLID },
+                    userId: { type: GraphQLID },
+                    name: { type: GraphQLString },
+                    description: { type: GraphQLString },
+                    status: {
+                        type: new GraphQLEnumType({
+                            name: 'PostStatus',
+                            values: {
+                                PENDING: { value: 'pending' },
+                                COMPLETED: { value: 'completed' },
+                                CANCELLED: { value: 'cancelled' }
+                            }
+                        }),
+                        defaultValue: 'pending'
+                    },
+                    userId: { type: GraphQLID }
+                },
+                resolve: async (parent, args) => {
+                    const post = await Post.create({
+                        userId: args.userId,
+                        name: args.name,
+                        description: args.description,
+                        status: args.status
+                    });
+                    return post;
+                }
+            },
+            updatePost: {
+                type: PostType,
+                args: {
+                    id: { type: GraphQLID },
+                    userId: { type: GraphQLID },
+                    name: { type: GraphQLString },
+                    description: { type: GraphQLString },
+                    status: { type: GraphQLString }
+                },
+                resolve: async (parent, args) => {
+                    const post = await Post.findByIdAndUpdate(args.id, args, { new: true });
+                    return post;
+                }
+            },
+            deletePost: {
+                type: PostType,
+                args: {
+                    id: { type: GraphQLID }
+                },
+                resolve: async (parent, args) => {
+                    const post = await Post.findByIdAndDelete(args.id);
+                    return post;
+                }
+            }
+        }
+    });
+
+
+    module.exports = new GraphQLSchema({
+        query: RootQuery,
+        mutation: RootMutation
+    });

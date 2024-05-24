@@ -1,5 +1,21 @@
     #% Tipi
 
+    ## Commenti
+    # Questo è un commento single-line
+    """
+        Questo è un
+        commento multi-line
+    """
+
+
+    ## Tipi Schema
+    schema {
+        query: Query
+        mutation: Mutation
+        subscription: Subscription
+    }
+
+
     ## Tipi scalari
     scalar Date
     scalar Time
@@ -14,79 +30,128 @@
 
     ## Tipi oggetto
     type User {
-    id: ID!
-    name: String!
-    email: String!
-    age: Int
-    direction: Direction
-    }
-
-    ## Tipi Enum
-    enum Direction {
-    NORTH
-    SOUTH
-    EAST
-    WEST
-    }
-
-    ## Tipi Query
-    type Query {
-    users: [User]
-    user(id: ID!): User
-    }
-
-    ## Tipi Mutation
-    type Mutation {
-    createUser(
+        id: ID!
         name: String!
         email: String!
         age: Int
         direction: Direction
-    ): User
-    updateUser(
-        id: ID!
-        name: String
-        email: String
-        age: Int
-        direction: Direction
-    ): User
-    deleteUser(id: ID!): User
+        #hobbies: [String!]!
     }
 
-    ## Tipi Interfacce
+
+    ## Tipi Enum
+    enum Direction {
+        NORTH
+        SOUTH
+        EAST
+        WEST
+    }
+
+
+    ## Interfacce
     interface Character {
-    id: ID
-    name: String
+        id: ID
+        name: String
     }
     type Human implements Character {
-    id: ID
-    name: String
-    height: Float
+        id: ID!
+        name: String!
+        age: Int
+        job: String
     }
-    type Droid implements Character {
-    id: ID
-    name: String
-    primaryFunction: String
+    type Alien implements Character {
+        id: ID!
+        name: String!
+        age: Int
+        planet: String
     }
 
-    ## Tipi Union
+
+    ## Union
     union SearchResult = Book | Author | Magazine
     type Book {
-    title: String
-    author: Author
+        title: String
+        author: Author
     }
     type Author {
-    name: String
-    books: [Book]
+        name: String
+        books: [Book]
     }
     type Magazine {
-    title: String
-    issueNumber: Int
+        title: String
+        issueNumber: Int
     }
+
+
+    ## Fragments
+    fragment UserFields on User {
+        id
+        name
+        email
+    }
+
+    query {
+        users {
+            ...userInfo
+        }
+    }
+
+    ## Tipi Input
+    input UserInput {
+        name: String!
+        email: String!
+        age: Int
+        direction: Direction
+    }
+
+
+    ## Tipi Query
+    type Query {
+        users: [User]
+        user(id: ID!): User
+    }
+
+    ## Direttive
+    type Query {
+        books: [Book] @skip(if: Boolean)
+    }
+
+    ## Argomenti
+    type Query {
+        user(id: ID!): User
+        users(limit: Int = 10): [User]
+    }
+
+    ## Aliases
+    type Query {
+        user(id: ID!): User
+        users(limit: Int = 10): [User]
+    }
+
+
+    ## Tipi Mutation
+    type Mutation {
+        createUser(
+            name: String!
+            email: String!
+            age: Int
+            direction: Direction
+        ): User
+        updateUser(
+            id: ID!
+            name: String
+            email: String
+            age: Int
+            direction: Direction
+        ): User
+        deleteUser(id: ID!): User
+    }
+
+
 
     ## Tipi Subscription
     type Subscription {
-    newUser: User
-    updatedUser: User
-    deletedUser: User
+        newUser: User
+        updatedUser: User
+        deletedUser: User
     }
