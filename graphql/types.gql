@@ -1,157 +1,145 @@
-    #% Tipi
+#% Tipi
 
-    ## Commenti
-    # Questo è un commento single-line
-    """
-        Questo è un
-        commento multi-line
-    """
+## Commenti
+# Questo è un commento single-line
+"""
+Questo è un
+commento multi-line
+"""
+schema {
+  ## Tipi Schema
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
+}
 
+## Tipi scalari
+scalar Date
+scalar Time
+scalar DateTime
+scalar Timestamp
+scalar Int
+scalar Float
+scalar String
+scalar Boolean
+scalar ID
 
-    ## Tipi Schema
-    schema {
-        query: Query
-        mutation: Mutation
-        subscription: Subscription
-    }
+## Tipi oggetto
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  age: Int
+  direction: Direction
+  #hobbies: [String!]!
+}
 
+## Tipi Mutation
+type Mutation {
+  createUser(
+    name: String!
+    email: String!
+    age: Int
+    direction: Direction
+  ): User
+  updateUser(
+    id: ID!
+    name: String
+    email: String
+    age: Int
+    direction: Direction
+  ): User
+  deleteUser(id: ID!): User
+}
 
-    ## Tipi scalari
-    scalar Date
-    scalar Time
-    scalar DateTime
-    scalar Timestamp
-    scalar Int
-    scalar Float
-    scalar String
-    scalar Boolean
-    scalar ID
+## Tipi Query
+type Query {
+  users: [User]
+  user(id: ID!): User
+}
 
+## Direttive
+type Query {
+  books: [Book] @skip(if: Boolean)
+}
 
-    ## Tipi oggetto
-    type User {
-        id: ID!
-        name: String!
-        email: String!
-        age: Int
-        direction: Direction
-        #hobbies: [String!]!
-    }
+## Argomenti
+type Query {
+  user(id: ID!): User
+  users(limit: Int = 10): [User]
+}
 
+## Aliases
+type Query {
+  user(id: ID!): User
+  users(limit: Int = 10): [User]
+}
 
-    ## Tipi Enum
-    enum Direction {
-        NORTH
-        SOUTH
-        EAST
-        WEST
-    }
+## Tipi Subscription
+type Subscription {
+  newUser: User
+  updatedUser: User
+  deletedUser: User
+}
 
+## Tipi Enum
+enum Direction {
+  NORTH
+  SOUTH
+  EAST
+  WEST
+}
 
-    ## Interfacce
-    interface Character {
-        id: ID
-        name: String
-    }
-    type Human implements Character {
-        id: ID!
-        name: String!
-        age: Int
-        job: String
-    }
-    type Alien implements Character {
-        id: ID!
-        name: String!
-        age: Int
-        planet: String
-    }
+## Interfacce
+interface Character {
+  id: ID
+  name: String
+}
+type Human implements Character {
+  id: ID!
+  name: String!
+  age: Int
+  job: String
+}
+type Alien implements Character {
+  id: ID!
+  name: String!
+  age: Int
+  planet: String
+}
 
+## Union
+union SearchResult = Book | Author | Magazine
+type Book {
+  title: String
+  author: Author
+}
+type Author {
+  name: String
+  books: [Book]
+}
+type Magazine {
+  title: String
+  issueNumber: Int
+}
 
-    ## Union
-    union SearchResult = Book | Author | Magazine
-    type Book {
-        title: String
-        author: Author
-    }
-    type Author {
-        name: String
-        books: [Book]
-    }
-    type Magazine {
-        title: String
-        issueNumber: Int
-    }
+## Fragments
+fragment UserFields on User {
+  id
+  name
+  email
+}
 
+query {
+  users {
+    ...userInfo
+  }
+}
 
-    ## Fragments
-    fragment UserFields on User {
-        id
-        name
-        email
-    }
-
-    query {
-        users {
-            ...userInfo
-        }
-    }
-
-    ## Tipi Input
-    input UserInput {
-        name: String!
-        email: String!
-        age: Int
-        direction: Direction
-    }
-
-
-    ## Tipi Query
-    type Query {
-        users: [User]
-        user(id: ID!): User
-    }
-
-    ## Direttive
-    type Query {
-        books: [Book] @skip(if: Boolean)
-    }
-
-    ## Argomenti
-    type Query {
-        user(id: ID!): User
-        users(limit: Int = 10): [User]
-    }
-
-    ## Aliases
-    type Query {
-        user(id: ID!): User
-        users(limit: Int = 10): [User]
-    }
-
-
-    ## Tipi Mutation
-    type Mutation {
-        createUser(
-            name: String!
-            email: String!
-            age: Int
-            direction: Direction
-        ): User
-        updateUser(
-            id: ID!
-            name: String
-            email: String
-            age: Int
-            direction: Direction
-        ): User
-        deleteUser(id: ID!): User
-    }
-
-
-
-    ## Tipi Subscription
-    type Subscription {
-        newUser: User
-        updatedUser: User
-        deletedUser: User
-    }
+## Tipi Input
+input UserInput {
+  name: String!
+  email: String!
+  age: Int
+  direction: Direction
+}
