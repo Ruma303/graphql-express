@@ -1,96 +1,170 @@
-#% Tipi
+#% SLD: Schema Definition Language
 
-## Commenti
-# Questo è un commento single-line
-"""
-Questo è un
-commento multi-line
-"""
-schema {
-  ## Tipi Schema
-  query: Query
-  mutation: Mutation
-  subscription: Subscription
-}
+#, Commenti
+    # Questo è un commento single-line
+    """
+        Questo è un
+        commento multi-line
+    """
 
+
+#, Tipi
 ## Tipi scalari
-scalar Date
-scalar Time
-scalar DateTime
-scalar Timestamp
-scalar Int
-scalar Float
-scalar String
-scalar Boolean
-scalar ID
+    scalar ID
+    scalar Int
+    scalar Float
+    scalar String
+    scalar Boolean
+    scalar Date
 
-## Tipi oggetto
-type User {
-  id: ID!
-  name: String!
-  email: String!
-  age: Int
-  direction: Direction
-  #hobbies: [String!]!
-}
+    ## Tipi oggetto
+    type User {
+        id: ID!
+        name: String!
+        email: String!
+        age: Int
+        role: UserRole
+        interests: [String!]!
+        hobbies: [String]
+    }
 
-## Tipi Mutation
-type Mutation {
-  createUser(
-    name: String!
-    email: String!
-    age: Int
-    direction: Direction
-  ): User
-  updateUser(
-    id: ID!
-    name: String
-    email: String
-    age: Int
-    direction: Direction
-  ): User
-  deleteUser(id: ID!): User
-}
+    ## Tipi Enum
+    enum UserRole {
+        GUEST
+        USER
+        SUPERUSER
+        ADMIN
+    }
 
-## Tipi Query
-type Query {
-  users: [User]
-  user(id: ID!): User
-}
 
-## Direttive
-type Query {
-  books: [Book] @skip(if: Boolean)
-}
+#, Queries
 
-## Argomenti
-type Query {
-  user(id: ID!): User
-  users(limit: Int = 10): [User]
-}
+    ## Query generica
+    """ type Query {
+        users: [User]
+    }
 
-## Aliases
-type Query {
-  user(id: ID!): User
-  users(limit: Int = 10): [User]
-}
+    query {
+        users {
+            id
+            name
+            role
+        }
+    } """
 
-## Tipi Subscription
-type Subscription {
-  newUser: User
-  updatedUser: User
-  deletedUser: User
-}
+    ## Arguments
+    type Query {
+        user(id: ID!): User
+        users(limit: Int = 10): [User]
+        getAdmins(role: UserRole = ADMIN): [User]
+    }
 
-## Tipi Enum
-enum Direction {
-  NORTH
-  SOUTH
-  EAST
-  WEST
-}
+    query {
+        user(id: "1") {
+            id
+            name
+            email
+            age
+            role
+            interests
+            hobbies
+        }
+        users(limit: 5) {
+            id
+            name
+        }
+        getAdmins {
+            id
+            name
+            role
+        }
+    }
 
-## Interfacce
+    ## Nominated Queries
+    query GetUser {
+        user(id: "1") {
+            name
+            email
+        }
+    }
+
+
+    ## Variables
+    query GetUser($userId: ID!) {
+        user(id: $userId0) {
+            id
+            name
+            interests
+            hobbies
+        }
+    }
+
+
+    ## Directives
+    query GetUser($userId: ID!, $includeEmail: Boolean!, $includeHobbies: Boolean!, $skipAgeIfZero: Boolean!) {
+        user(id: $userId) {
+            id
+            name
+            email @include(if: $includeEmail)
+            age @skip(if: $skipAgeIfZero)
+            role
+            interests
+            hobbies @include(if: $includeHobbies)
+        }
+    }
+
+
+    ## Aliases
+    query {
+        firstUser: user(id: "1") {
+            id
+            name
+            email
+        }
+        secondUser: user(id: "2") {
+            id
+            name
+            email
+        }
+        allUsers: users {
+            id
+            name
+        }
+        allSuperusers: users(role: SUPERUSER) {
+            id
+            name
+        }
+    }
+
+
+
+#, Mutation
+    type Mutation {
+        createUser(name: String!, email: String!, age: Int, role: UserRole, interests: [String!]!, hobbies: [String]): User
+        updateUser(id: ID!, name: String, email: String, age: Int, role: UserRole, interests: [String!], hobbies: [String]): User
+        deleteUser(id: ID!): User
+    }
+
+
+#, Tipi Subscription
+    type Subscription {
+        userCreated: User
+        userUpdated: User
+        userDeleted: User
+    }
+
+    ## Esempio Subscription Client
+    subscription {
+        userCreated {
+            id
+            name
+            email
+            role
+        }
+    }
+
+
+#, Interfacce
 interface Character {
   id: ID
   name: String
@@ -108,38 +182,107 @@ type Alien implements Character {
   planet: String
 }
 
-## Union
-union SearchResult = Book | Author | Magazine
-type Book {
-  title: String
-  author: Author
-}
-type Author {
-  name: String
-  books: [Book]
-}
-type Magazine {
-  title: String
-  issueNumber: Int
-}
+#, Union Types
+    union SearchResult = Book | Author | Magazine
+    type Book {
+        title: String
+        author: Author
+    }
+    type Author {
+        name: String
+        books: [Book]
+    }
+    type Magazine {
+        title: String
+        issueNumber: Int
+    }
 
-## Fragments
-fragment UserFields on User {
-  id
-  name
-  email
-}
+    type Query {
+        search(query: String!): [SearchResult]
+        books: [Book]
+    }
 
-query {
-  users {
-    ...userInfo
-  }
-}
+    query SearchQuery {
+        search(query: "example search") {
+            ... on Book {
+                title
+                author {
+                    name
+                }
+            }
+            ... on Author {
+                name
+                books {
+                    title
+                }
+            }
+            ... on Magazine {
+                title
+                issueNumber
+            }
+        }
+    }
 
-## Tipi Input
+
+#, Fragments
+    fragment bookDetails on Book {
+        title
+        author {
+            name
+        }
+    }
+
+    query GetBooks {
+        books {
+            title
+            author {
+                name
+            }
+        }
+    }
+
+    fragment bookFragment on Book {
+        title
+        author {
+            name
+        }
+    }
+    fragment authorFragment on Author {
+        name
+        books {
+            ...bookFragment
+        }
+    }
+    fragment magazineFragment on Magazine {
+        title
+        issueNumber
+    }
+    query SearchQuery {
+        search(query: "example") {
+            ... on Book {
+                ...bookFragment
+            }
+            ... on Author {
+                ...authorFragment
+            }
+            ... on Magazine {
+                ...magazineFragment
+            }
+        }
+    }
+
+#, Tipi Input
 input UserInput {
-  name: String!
-  email: String!
-  age: Int
-  direction: Direction
+    name: String!
+    email: String!
+    age: Int
+    role: Role
+}
+
+
+#, Schema
+schema {
+  query: Query
+  mutation: Mutation
+  subscription: Subscription
 }
