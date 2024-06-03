@@ -96,7 +96,7 @@ const RootMutation = new GraphQLObjectType({
         addUser: {
             type: UserType,
             args: {
-                id: { type: GraphQLID },
+                id: { type: new GraphQLNonNull(GraphQLID) },
                 name: { type: new GraphQLNonNull(GraphQLString) },
                 email: { type: new GraphQLNonNull(GraphQLString) },
                 password: { type: new GraphQLNonNull(GraphQLString) },

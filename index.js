@@ -20,7 +20,7 @@ app.all(
     createHandler({
         schema: schema,
         //rootValue: root,
-        //graphiql: true,
+        graphiql: process.env.NODE_ENV === "development",
     })
 );
 // Servire l'IDE di GraphQL

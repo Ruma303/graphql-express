@@ -33,5 +33,19 @@
     "email": "emilydavis@example.com",
     "password": "password5",
     "phone": "1111111111"
+  },
+  {
+    "id": "6",
+    "name": "alfonso",
+    "email": "alfonso@fonzies.com",
+    "password": "password di alfonso",
+    "phone": "12345"
+  },
+  {
+    "id": "1717443684940",
+    "name": "alfonso",
+    "email": "alfonso@fonzies.com",
+    "password": "password di alfonso",
+    "phone": "12345"
   }
 ]
